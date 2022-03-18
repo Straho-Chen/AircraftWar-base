@@ -1,6 +1,4 @@
 # IDEA dir
-.idea/*
-out/*
 
 # db dir
 ranklist_db
