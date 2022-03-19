@@ -24,10 +24,10 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
         this.maxHp = hp;
     }
 
-    public void decreaseHp(int decrease){
+    public void decreaseHp(int decrease) {
         hp -= decrease;
-        if(hp <= 0){
-            hp=0;
+        if(hp <= 0) {
+            hp = 0;
             vanish();
         }
     }

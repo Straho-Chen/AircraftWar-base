@@ -25,32 +25,30 @@ abstract class AbstractFlyingObject
     + notValid():boolean
     + vanish():void
 }
+
 abstract class AbstractAircraft
 {
-	# axHp:int
+	# maxHp:int
     # hp:int
     + AbstractAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
     + decreaseHp(int decrease):void
     + getHp():int
-    + {abstract} shoot():List<BaseBullet>
+    + {abstract} shoot():List<AbstractBullet>
  }
 
-abstract class BaseBullet
+class AbstractBullet
 {
     - power:int
-    + BaseBullet(int locationX, int locationY, int speedX, int speedY, int power)
+    + AbstractBullet(int locationX, int locationY, int speedX, int speedY, int power)
     + forward():void
 	+ getPower():int
 }
 
-AbstractFlyingObject <|-- AbstractAircraft
-AbstractFlyingObject <|-- BaseBullet
-
-AbstractAircraft <|-- HeroAircraft
-AbstractAircraft <|-- MobEnemy
-
-BaseBullet <|-- HeroBullet
-BaseBullet <|-- EnemyBullet
+abstract class AbstractProp
+{
+    + AbstractProp(int locationX, int locationY, int speedX, int speedY)
+    + forward():void
+}
 
 class HeroAircraft {
     - shootNum:int
@@ -58,13 +56,23 @@ class HeroAircraft {
     - direction:int
     + HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
-    + shoot():List<BaseBullet>
+    + shoot():List<AbstractBullet>
+    + increaseHP(int increase):void
 }
 
 class MobEnemy {
     + MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
-    + shoot():List<BaseBullet>
+    + shoot():List<AbstractBullet>
+}
+
+class EliteEnemy {
+    - shootNum:int
+    - power:int
+    - direction:int
+    + EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<AbstractBullet>
 }
 
 class HeroBullet {
@@ -76,5 +84,36 @@ class EnemyBullet {
     + EnemyBullet(int locationX, int locationY,
      int speedX, int speedY, int power)
 }
+
+class BloodSupplyProp {
+    - hp:int
+    + BloodSupplyProp(int locationX, int locationY, int speedX, int speedY)
+    + IncreaseHP(HeroAircraft heroAircraft)
+}
+
+class FireSupplyProp {
+    + FireSupplyProp(int locationX, int locationY, int speedX, int speedY)
+    + IncreaseFire()
+}
+
+class BombSupplyProp {
+    + BombSupplyProp(int locationX, int locationY, int speedX, int speedY)
+    + Boom()
+}
+
+AbstractFlyingObject <|-- AbstractAircraft
+AbstractFlyingObject <|-- AbstractBullet
+AbstractFlyingObject <|-- AbstractProp
+
+AbstractAircraft <|-- HeroAircraft
+AbstractAircraft <|-- MobEnemy
+AbstractAircraft <|-- EliteEnemy
+
+AbstractBullet <|-- HeroBullet
+AbstractBullet <|-- EnemyBullet
+
+AbstractProp <|-- BloodSupplyProp
+AbstractProp <|-- FireSupplyProp
+AbstractProp <|-- BombSupplyProp
 
 @enduml
