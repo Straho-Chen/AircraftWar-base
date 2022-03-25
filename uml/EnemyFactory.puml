@@ -1,6 +1,25 @@
 @startuml
 'https://plantuml.com/class-diagram
 
+abstract class EnemyFactory {
+    + {abstract} creatEnemy():AbstractAircraft
+}
+
+class MobFactory {
+    + creatEnemy():AbstractAircraft
+}
+
+class EliteFactory {
+    + creatEnemy():AbstractAircraft
+}
+
+class BossFactory {
+    + creatEnemy():AbstractAircraft
+}
+
+class Game {
+}
+
 abstract class AbstractFlyingObject
 {
     # locationX:int
@@ -34,32 +53,6 @@ abstract class AbstractAircraft
     + decreaseHp(int decrease):void
     + getHp():int
     + {abstract} shoot():List<AbstractBullet>
- }
-
-class AbstractBullet
-{
-    - power:int
-    + AbstractBullet(int locationX, int locationY, int speedX, int speedY, int power)
-    + forward():void
-	+ getPower():int
-}
-
-abstract class AbstractProp
-{
-    + AbstractProp(int locationX, int locationY, int speedX, int speedY)
-    + forward():void
-}
-
-class HeroAircraft {
-    - heroAircraft:HeroAircraft
-    - shootNum:int
-    - power:int
-    - direction:int
-    - HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
-    + forward():void
-    + shoot():List<AbstractBullet>
-    + increaseHP(int increase):void
-    + getSingleton():HeroAircraft
 }
 
 class MobEnemy {
@@ -86,46 +79,21 @@ class Boss {
     + shoot():List<AbstractBullet>
 }
 
-class HeroBullet {
-    + HeroBullet(int locationX, int locationY,
-     int speedX, int speedY, int power)
-}
-
-class EnemyBullet {
-    + EnemyBullet(int locationX, int locationY,
-     int speedX, int speedY, int power)
-}
-
-class BloodSupplyProp {
-    - hp:int
-    + BloodSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + IncreaseHP(HeroAircraft heroAircraft):void
-}
-
-class FireSupplyProp {
-    + FireSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + IncreaseFire():void
-}
-
-class BombSupplyProp {
-    + BombSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + Boom():void
-}
-
 AbstractFlyingObject <|-- AbstractAircraft
-AbstractFlyingObject <|-- AbstractBullet
-AbstractFlyingObject <|-- AbstractProp
 
-AbstractAircraft <|-- HeroAircraft
 AbstractAircraft <|-- MobEnemy
 AbstractAircraft <|-- EliteEnemy
 AbstractAircraft <|-- Boss
 
-AbstractBullet <|-- HeroBullet
-AbstractBullet <|-- EnemyBullet
+EnemyFactory <|-- MobFactory
+EnemyFactory <|-- EliteFactory
+EnemyFactory <|-- BossFactory
 
-AbstractProp <|-- BloodSupplyProp
-AbstractProp <|-- FireSupplyProp
-AbstractProp <|-- BombSupplyProp
+Game ..> EnemyFactory
+Game ..> AbstractAircraft
+
+MobFactory ..> MobEnemy
+EliteFactory ..> EliteEnemy
+BossFactory ..> Boss
 
 @enduml

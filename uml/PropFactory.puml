@@ -1,0 +1,87 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+abstract class PropFactory {
+    + {abstract} creatProp(AbstractAircraft enemyAircraft):AbstractProp
+}
+
+class BloodSupplyFactory {
+    + creatProp(AbstractAircraft enemyAircraft):AbstractProp
+}
+
+class FireSupplyFactory {
+    + creatProp(AbstractAircraft enemyAircraft):AbstractProp
+}
+
+class BombSupplyFactory {
+    + creatProp(AbstractAircraft enemyAircraft):AbstractProp
+}
+
+class Game {
+}
+
+abstract class AbstractFlyingObject
+{
+    # locationX:int
+    # locationY:int
+    # speedX:int
+    # speedY:int
+    # image:BufferedImage
+    # width:int
+    # height:int
+    # isValid:boolean
+
+    + AbstractFlyingObject(int locationX, int locationY, int speedX, int speedY)
+    + forward():void
+    + crash(AbstractFlyingObject flyingObject):boolean
+    + setLocation(double locationX, double locationY):void
+    + getLocationX():int
+    + getLocationY():int
+    + getSpeedY():int
+    + getImage():BufferedImage
+    + getWidth():int
+    + getHeight():int
+    + notValid():boolean
+    + vanish():void
+}
+
+abstract class AbstractProp
+{
+    + AbstractProp(int locationX, int locationY, int speedX, int speedY)
+    + forward():void
+}
+
+class BloodSupplyProp {
+    - hp:int
+    + BloodSupplyProp(int locationX, int locationY, int speedX, int speedY)
+    + IncreaseHP(HeroAircraft heroAircraft):void
+}
+
+class FireSupplyProp {
+    + FireSupplyProp(int locationX, int locationY, int speedX, int speedY)
+    + IncreaseFire():void
+}
+
+class BombSupplyProp {
+    + BombSupplyProp(int locationX, int locationY, int speedX, int speedY)
+    + Boom():void
+}
+
+AbstractFlyingObject <|-- AbstractProp
+
+AbstractProp <|-- BloodSupplyProp
+AbstractProp <|-- FireSupplyProp
+AbstractProp <|-- BombSupplyProp
+
+PropFactory <|-- BloodSupplyFactory
+PropFactory <|-- FireSupplyFactory
+PropFactory <|-- BombSupplyFactory
+
+Game ..> PropFactory
+Game ..> AbstractProp
+
+BloodSupplyFactory ..> BloodSupplyProp
+FireSupplyFactory ..> FireSupplyProp
+BombSupplyFactory ..> BombSupplyProp
+
+@enduml

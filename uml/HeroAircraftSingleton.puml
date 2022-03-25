@@ -1,0 +1,21 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class HeroAircraft{
+    - heroAircraft:HeroAircraft
+    - shootNum:int
+    - power:int
+    - direction:int
+    - HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<AbstractBullet>
+    + increaseHP(int increase):void
+    + getSingleton():HeroAircraft
+}
+
+class Game {
+}
+
+Game ..> HeroAircraft
+
+@enduml
