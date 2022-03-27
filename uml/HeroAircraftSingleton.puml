@@ -2,7 +2,7 @@
 'https://plantuml.com/class-diagram
 
 class HeroAircraft{
-    - heroAircraft:HeroAircraft
+    - {static} heroAircraft:HeroAircraft
     - shootNum:int
     - power:int
     - direction:int
@@ -10,7 +10,7 @@ class HeroAircraft{
     + forward():void
     + shoot():List<AbstractBullet>
     + increaseHP(int increase):void
-    + getSingleton():HeroAircraft
+    + {static} getSingleton():HeroAircraft
 }
 
 class Game {
