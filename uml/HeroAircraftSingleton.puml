@@ -17,5 +17,6 @@ class Game {
 }
 
 Game ..> HeroAircraft
+HeroAircraft <.. HeroAircraft
 
 @enduml
