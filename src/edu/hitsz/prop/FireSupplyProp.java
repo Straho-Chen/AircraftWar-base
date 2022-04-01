@@ -8,7 +8,7 @@ public class FireSupplyProp extends AbstractProp {
         super(locationX, locationY, speedX, speedY);
     }
 
-    public void IncreaseFire() {
+    public void increaseFire() {
         System.out.print("FireSupply active!");
     }
 

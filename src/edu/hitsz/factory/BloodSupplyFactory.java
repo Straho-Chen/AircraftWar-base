@@ -4,7 +4,7 @@ import edu.hitsz.aircraft.AbstractAircraft;
 import edu.hitsz.prop.AbstractProp;
 import edu.hitsz.prop.BloodSupplyProp;
 
-public class BloodSupplyFactory extends PropFactory{
+public class BloodSupplyFactory extends AbstractPropFactory {
 
     @Override
     public AbstractProp creatProp(AbstractAircraft enemyAircraft) {

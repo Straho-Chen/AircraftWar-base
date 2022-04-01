@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * 所有道具的抽象父类：
- * 回血、火力、炸弹（IncreaseHP, IncreaseFire, Boom）
+ * 回血、火力、炸弹（increaseHp, increaseFire, boom）
  */
 public abstract class AbstractProp extends AbstractFlyingObject {
 

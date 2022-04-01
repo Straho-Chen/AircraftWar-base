@@ -73,7 +73,7 @@ public class HeroAircraft extends AbstractAircraft {
         return res;
     }
 
-    public void increaseHP(int increase) {
+    public void increaseHp(int increase) {
         hp += increase;
         if (hp >= maxHp) {
             hp = maxHp;

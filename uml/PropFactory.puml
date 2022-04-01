@@ -1,7 +1,7 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-abstract class PropFactory {
+abstract class AbstractPropFactory {
     + {abstract} creatProp(AbstractAircraft enemyAircraft):AbstractProp
 }
 
@@ -54,17 +54,17 @@ abstract class AbstractProp
 class BloodSupplyProp {
     - hp:int
     + BloodSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + IncreaseHP(HeroAircraft heroAircraft):void
+    + increaseHp(HeroAircraft heroAircraft):void
 }
 
 class FireSupplyProp {
     + FireSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + IncreaseFire():void
+    + increaseFire():void
 }
 
 class BombSupplyProp {
     + BombSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + Boom():void
+    + boom():void
 }
 
 AbstractFlyingObject <|-- AbstractProp
@@ -73,9 +73,9 @@ AbstractProp <|-- BloodSupplyProp
 AbstractProp <|-- FireSupplyProp
 AbstractProp <|-- BombSupplyProp
 
-PropFactory <|-- BloodSupplyFactory
-PropFactory <|-- FireSupplyFactory
-PropFactory <|-- BombSupplyFactory
+AbstractPropFactory <|-- BloodSupplyFactory
+AbstractPropFactory <|-- FireSupplyFactory
+AbstractPropFactory <|-- BombSupplyFactory
 
 Game ..> PropFactory
 Game ..> AbstractProp

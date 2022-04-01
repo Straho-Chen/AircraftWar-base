@@ -37,11 +37,11 @@ public class Game extends JPanel {
     private int timeInterval = 40;
 
     private final HeroAircraft heroAircraft;
-    private EnemyFactory enemyFactory;
+    private AbstractEnemyFactory enemyFactory;
     private final List<AbstractAircraft> enemyAircrafts;
     private final List<AbstractBullet> heroBullets;
     private final List<AbstractBullet> enemyBullets;
-    private PropFactory propFactory;
+    private AbstractPropFactory propFactory;
     private final List<AbstractProp> propSupply;
 
     private int enemyMaxNumber = 5;
@@ -273,13 +273,13 @@ public class Game extends JPanel {
             if (heroAircraft.crash(prop)) {
                 // 英雄机撞击到道具
                 if (BloodSupplyProp.class.isAssignableFrom(prop.getClass())) {
-                    ((BloodSupplyProp) prop).IncreaseHP(heroAircraft);
+                    ((BloodSupplyProp) prop).increaseHp(heroAircraft);
                 }
                 else if (FireSupplyProp.class.isAssignableFrom(prop.getClass())) {
-                    ((FireSupplyProp) prop).IncreaseFire();
+                    ((FireSupplyProp) prop).increaseFire();
                 }
                 else if (BombSupplyProp.class.isAssignableFrom(prop.getClass())) {
-                    ((BombSupplyProp) prop).Boom();
+                    ((BombSupplyProp) prop).boom();
                 }
                 prop.vanish();
                 if (heroAircraft.notValid()) {

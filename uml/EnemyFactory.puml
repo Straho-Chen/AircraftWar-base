@@ -1,7 +1,7 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-abstract class EnemyFactory {
+abstract class AbstractEnemyFactory {
     + {abstract} creatEnemy():AbstractAircraft
 }
 
@@ -85,9 +85,9 @@ AbstractAircraft <|-- MobEnemy
 AbstractAircraft <|-- EliteEnemy
 AbstractAircraft <|-- Boss
 
-EnemyFactory <|-- MobFactory
-EnemyFactory <|-- EliteFactory
-EnemyFactory <|-- BossFactory
+AbstractEnemyFactory <|-- MobFactory
+AbstractEnemyFactory <|-- EliteFactory
+AbstractEnemyFactory <|-- BossFactory
 
 Game ..> EnemyFactory
 Game ..> AbstractAircraft

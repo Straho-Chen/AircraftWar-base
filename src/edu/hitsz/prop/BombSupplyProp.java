@@ -6,7 +6,7 @@ public class BombSupplyProp extends AbstractProp {
         super(locationX, locationY, speedX, speedY);
     }
 
-    public void Boom() {
+    public void boom() {
         System.out.print("BoomSupply active!");
     }
 

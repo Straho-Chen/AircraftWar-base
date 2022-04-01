@@ -1,7 +1,6 @@
 package edu.hitsz.prop;
 
 import edu.hitsz.aircraft.HeroAircraft;
-import edu.hitsz.application.Main;
 
 public class BloodSupplyProp extends AbstractProp {
 
@@ -11,8 +10,8 @@ public class BloodSupplyProp extends AbstractProp {
         super(locationX, locationY, speedX, speedY);
     }
 
-    public void IncreaseHP(HeroAircraft heroAircraft) {
-        heroAircraft.increaseHP(hp);
+    public void increaseHp(HeroAircraft heroAircraft) {
+        heroAircraft.increaseHp(hp);
     }
 
 }

@@ -58,7 +58,7 @@ class HeroAircraft {
     - HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
     + shoot():List<AbstractBullet>
-    + increaseHP(int increase):void
+    + increaseHp(int increase):void
     + getSingleton():HeroAircraft
 }
 
@@ -99,17 +99,17 @@ class EnemyBullet {
 class BloodSupplyProp {
     - hp:int
     + BloodSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + IncreaseHP(HeroAircraft heroAircraft):void
+    + increaseHp(HeroAircraft heroAircraft):void
 }
 
 class FireSupplyProp {
     + FireSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + IncreaseFire():void
+    + increaseFire():void
 }
 
 class BombSupplyProp {
     + BombSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + Boom():void
+    + boom():void
 }
 
 AbstractFlyingObject <|-- AbstractAircraft
