@@ -1,0 +1,27 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Game {}
+
+class FireSupplyProp {
+    - propStrategy:PropStrategy
+    + FireSupplyProp(int locationX, int locationY, int speedX, int speedY)
+    + setPropStrategy(PropStrategy propStrategy):void
+    + executeStrategy(HeroAircraft heroAircraft):void
+}
+
+interface PropStrategy {
+    + firePropSet(HeroAircraft heroAircraft):void
+}
+
+class ChangeBallistic {
+    + firePropSet(HeroAircraft heroAircraft):void
+}
+
+Game ..> FireSupplyProp
+
+FireSupplyProp o--> PropStrategy
+
+PropStrategy <|.. ChangeBallistic
+
+@enduml

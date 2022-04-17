@@ -1,5 +1,10 @@
 package edu.hitsz.application;
 
+import edu.hitsz.bullet.EnemyBullet;
+import edu.hitsz.dao.Player;
+import edu.hitsz.dao.PlayerDao;
+import edu.hitsz.dao.PlayerDaoImpl;
+import edu.hitsz.prop.strategy.ChangeBallistic;
 import edu.hitsz.aircraft.*;
 import edu.hitsz.bullet.AbstractBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
@@ -13,9 +18,12 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.logging.SimpleFormatter;
 
 /**
  * 游戏主面板，游戏启动
@@ -43,11 +51,15 @@ public class Game extends JPanel {
     private final List<AbstractBullet> enemyBullets;
     private AbstractPropFactory propFactory;
     private final List<AbstractProp> propSupply;
+    private Player player = new Player();
+    private List<Player> players;
+    private PlayerDao playerDao = new PlayerDaoImpl();
 
     private int enemyMaxNumber = 5;
 
     private boolean gameOverFlag = false;
     private int score = 0;
+    private int bossScoreThreshold = 100;
     private int time = 0;
     /**
      * 周期（ms)
@@ -101,6 +113,19 @@ public class Game extends JPanel {
                     enemyFactory = new EliteFactory();
                     enemyAircrafts.add(enemyFactory.creatEnemy());
                 }
+                if(isThreshold()) {
+                    boolean bossExit = false;
+                    for (AbstractAircraft enemy : enemyAircrafts) {
+                        if (Boss.class.isAssignableFrom(enemy.getClass())) {
+                            bossExit = true;
+                            break;
+                        }
+                    }
+                    if (!bossExit) {
+                        enemyFactory = new BossFactory();
+                        enemyAircrafts.add(enemyFactory.creatEnemy());
+                    }
+                }
                 // 飞机射出子弹
                 shootAction();
             }
@@ -128,6 +153,7 @@ public class Game extends JPanel {
                 // 游戏结束
                 executorService.shutdown();
                 gameOverFlag = true;
+                scorePrint();
                 System.out.println("Game Over!");
             }
 
@@ -156,15 +182,55 @@ public class Game extends JPanel {
         }
     }
 
+    private boolean isThreshold() {
+        if (score != 0 && score % bossScoreThreshold == 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private void scorePrint() {
+        System.out.println("******************************************");
+        System.out.println("                得分排行榜                  ");
+        System.out.println("******************************************");
+        // 创建当前玩家，记录信息
+        player.setName("testUserName");
+        player.setScore(score);
+        Date date = new Date();
+        SimpleDateFormat df = new SimpleDateFormat("MM-dd HH:mm");
+        player.setTime(df.format(date));
+        // 将当前玩家加入玩家池
+        playerDao.doAdd(player);
+        players = playerDao.getAllPlayers();
+        // 排序输出
+        for (Player p : players) {
+            System.out.println(p.toString());
+        }
+        // 序列化后写入文件
+        File file = new File("C:\\Users\\Strah\\Documents\\AircraftWar-base\\src\\edu\\hitsz\\dao\\data\\PlayerInfo.dat");
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+            Player[] pl = new Player[players.size()];
+            players.toArray(pl);
+            oos.writeObject(pl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void shootAction() {
         // TODO 敌机射击
-        for (int size = enemyAircrafts.size(), i = 0; i < size; i++) {
-            if (EliteEnemy.class.isAssignableFrom(enemyAircrafts.get(i).getClass())) {
-                enemyBullets.addAll(enemyAircrafts.get(i).shoot());
+        for (AbstractAircraft enemy : enemyAircrafts) {
+            if (EliteEnemy.class.isAssignableFrom(enemy.getClass())) {
+                enemyBullets.addAll(enemy.executeStrategy(enemy));
+            }
+            else if (Boss.class.isAssignableFrom(enemy.getClass())) {
+                enemyBullets.addAll(enemy.executeStrategy(enemy));
             }
         }
-        // 英雄射击
-        heroBullets.addAll(heroAircraft.shoot());
+//         英雄射击
+        heroBullets.addAll(heroAircraft.executeStrategy(heroAircraft));
     }
 
     private void bulletsMoveAction() {
@@ -234,9 +300,9 @@ public class Game extends JPanel {
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
                         // TODO 获得分数，产生道具补给
-                        if (EliteEnemy.class.isAssignableFrom(enemyAircraft.getClass())) {
+                        if (!MobEnemy.class.isAssignableFrom(enemyAircraft.getClass())) {
                             Random r = new Random();
-                            int t = r.nextInt(10);
+                            int t = r.nextInt(7);
                             if (t == 4) {
                                 propFactory = new BloodSupplyFactory();
                                 propSupply.add(propFactory.creatProp(enemyAircraft));
@@ -250,7 +316,15 @@ public class Game extends JPanel {
                                 propSupply.add(propFactory.creatProp(enemyAircraft));
                             }
                         }
-                        score += 10;
+                        if (MobEnemy.class.isAssignableFrom(enemyAircraft.getClass())) {
+                            score += 10;
+                        }
+                        else if (EliteEnemy.class.isAssignableFrom(enemyAircraft.getClass())) {
+                            score += 20;
+                        }
+                        else {
+                            score += 30;
+                        }
                     }
                 }
                 // 英雄机 与 敌机 相撞，均损毁
@@ -276,7 +350,8 @@ public class Game extends JPanel {
                     ((BloodSupplyProp) prop).increaseHp(heroAircraft);
                 }
                 else if (FireSupplyProp.class.isAssignableFrom(prop.getClass())) {
-                    ((FireSupplyProp) prop).increaseFire();
+                    ((FireSupplyProp) prop).setPropStrategy(new ChangeBallistic());
+                    ((FireSupplyProp) prop).executeStrategy(heroAircraft);
                 }
                 else if (BombSupplyProp.class.isAssignableFrom(prop.getClass())) {
                     ((BombSupplyProp) prop).boom();

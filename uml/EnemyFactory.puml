@@ -89,7 +89,7 @@ AbstractEnemyFactory <|-- MobFactory
 AbstractEnemyFactory <|-- EliteFactory
 AbstractEnemyFactory <|-- BossFactory
 
-Game ..> EnemyFactory
+Game ..> AbstractEnemyFactory
 Game ..> AbstractAircraft
 
 MobFactory ..> MobEnemy

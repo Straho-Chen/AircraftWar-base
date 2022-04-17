@@ -1,5 +1,6 @@
 package edu.hitsz.factory;
 
+import edu.hitsz.aircraft.strategy.DirectBallistic;
 import edu.hitsz.aircraft.AbstractAircraft;
 import edu.hitsz.aircraft.EliteEnemy;
 import edu.hitsz.application.ImageManager;
@@ -14,7 +15,9 @@ public class EliteFactory extends AbstractEnemyFactory {
                 (int) (Math.random() * Main.WINDOW_HEIGHT * 0.2)*1,
                 2,
                 2,
-                30
+                20,
+                new DirectBallistic(),
+                1
         );
     }
 }

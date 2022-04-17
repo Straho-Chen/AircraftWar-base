@@ -1,11 +1,7 @@
 package edu.hitsz.aircraft;
 
-import edu.hitsz.application.Game;
+import edu.hitsz.aircraft.strategy.FireStrategy;
 import edu.hitsz.application.Main;
-import edu.hitsz.bullet.AbstractBullet;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * 普通敌机
@@ -15,8 +11,8 @@ import java.util.List;
  */
 public class MobEnemy extends AbstractAircraft {
 
-    public MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp) {
-        super(locationX, locationY, speedX, speedY, hp);
+    public MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp, FireStrategy fireStrategy, int direction) {
+        super(locationX, locationY, speedX, speedY, hp, fireStrategy, direction);
     }
 
     @Override
@@ -27,10 +23,4 @@ public class MobEnemy extends AbstractAircraft {
             vanish();
         }
     }
-
-    @Override
-    public List<AbstractBullet> shoot() {
-        return new LinkedList<>();
-    }
-
 }

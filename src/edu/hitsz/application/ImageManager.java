@@ -1,6 +1,7 @@
 package edu.hitsz.application;
 
 
+import edu.hitsz.aircraft.Boss;
 import edu.hitsz.aircraft.EliteEnemy;
 import edu.hitsz.aircraft.HeroAircraft;
 import edu.hitsz.aircraft.MobEnemy;
@@ -37,6 +38,7 @@ public class ImageManager {
     public static BufferedImage ENEMY_BULLET_IMAGE;
     public static BufferedImage MOB_ENEMY_IMAGE;
     public static BufferedImage ELITE_ENEMY_IMAGE;
+    public static BufferedImage BOSS_ENEMY_IMAGE;
     public static BufferedImage BLOODSUPPLY_PROP_IMAGE;
     public static BufferedImage FIRESUPPLY_PROP_IMAGE;
     public static BufferedImage BOMBSUPPLY_PROP_IMAGE;
@@ -51,6 +53,7 @@ public class ImageManager {
             HERO_BULLET_IMAGE = ImageIO.read(new FileInputStream("src/images/bullet_hero.png"));
             ENEMY_BULLET_IMAGE = ImageIO.read(new FileInputStream("src/images/bullet_enemy.png"));
             ELITE_ENEMY_IMAGE = ImageIO.read(new FileInputStream("src/images/elite.png"));
+            BOSS_ENEMY_IMAGE = ImageIO.read(new FileInputStream("src/images/boss.png"));
             BLOODSUPPLY_PROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_blood.png"));
             FIRESUPPLY_PROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_bullet.png"));
             BOMBSUPPLY_PROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_bomb.png"));
@@ -60,6 +63,7 @@ public class ImageManager {
             CLASSNAME_IMAGE_MAP.put(HeroBullet.class.getName(), HERO_BULLET_IMAGE);
             CLASSNAME_IMAGE_MAP.put(EnemyBullet.class.getName(), ENEMY_BULLET_IMAGE);
             CLASSNAME_IMAGE_MAP.put(EliteEnemy.class.getName(), ELITE_ENEMY_IMAGE);
+            CLASSNAME_IMAGE_MAP.put(Boss.class.getName(), BOSS_ENEMY_IMAGE);
             CLASSNAME_IMAGE_MAP.put(BloodSupplyProp.class.getName(), BLOODSUPPLY_PROP_IMAGE);
             CLASSNAME_IMAGE_MAP.put(FireSupplyProp.class.getName(), FIRESUPPLY_PROP_IMAGE);
             CLASSNAME_IMAGE_MAP.put(BombSupplyProp.class.getName(), BOMBSUPPLY_PROP_IMAGE);

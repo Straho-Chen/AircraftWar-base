@@ -11,8 +11,8 @@ public class FireSupplyFactory extends AbstractPropFactory {
         return new FireSupplyProp(
                 enemyAircraft.getLocationX(),
                 enemyAircraft.getLocationY(),
-                0,
-                enemyAircraft.getSpeedY()
+                speedX,
+                speedY
         );
     }
 }

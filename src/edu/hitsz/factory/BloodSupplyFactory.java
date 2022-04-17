@@ -11,8 +11,8 @@ public class BloodSupplyFactory extends AbstractPropFactory {
         return new BloodSupplyProp(
                 enemyAircraft.getLocationX(),
                 enemyAircraft.getLocationY(),
-                0,
-                enemyAircraft.getSpeedY()
+                speedX,
+                speedY
         );
     }
 }

@@ -1,0 +1,49 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Game {}
+
+interface PlayerDao {
+    + findByName(String name):void
+    + getAllPlayers():List<Player>
+    + doAdd(Player player):void
+    + doDelete(String name):void
+}
+
+class PlayerDaoImpl {
+    - players:List<Player>
+    + PlayerDaoImpl()
+    + findByName(String name):void
+    + getAllPlayers():List<Player>
+    + doAdd(Player player):void
+    + doDelete(Player player):void
+}
+
+class Player {
+    - rank:int
+    - name:String
+    - score:int
+    - time:String
+    + Player(int rank, String name, int score, String time)
+    + getRank():int
+    + setRank(int rank):void
+    + getName():String
+    + setName(String name):void
+    + getScore():int
+    + setScore(int score):void
+    + getTime():String
+    + setTime(String time):void
+    + toString():String
+    + compareTo():int
+}
+
+Game ..> PlayerDao
+
+PlayerDao <|.. PlayerDaoImpl
+
+PlayerDaoImpl --> Player
+
+Serializable <|.. Player
+Comparable <|.. Player
+
+@enduml

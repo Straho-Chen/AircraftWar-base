@@ -11,8 +11,8 @@ public class BombSupplyFactory extends AbstractPropFactory {
         return new BombSupplyProp(
                 enemyAircraft.getLocationX(),
                 enemyAircraft.getLocationY(),
-                0,
-                enemyAircraft.getSpeedY()
+                speedX,
+                speedY
         );
     }
 }

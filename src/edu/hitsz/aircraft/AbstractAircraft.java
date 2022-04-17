@@ -1,5 +1,6 @@
 package edu.hitsz.aircraft;
 
+import edu.hitsz.aircraft.strategy.FireStrategy;
 import edu.hitsz.bullet.AbstractBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
 
@@ -17,11 +18,18 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
      */
     protected int maxHp;
     protected int hp;
+    protected FireStrategy fireStrategy;
+    /**
+     * 子弹射击方向 (向上发射：1，向下发射：-1)
+     */
+    protected int direction;
 
-    public AbstractAircraft(int locationX, int locationY, int speedX, int speedY, int hp) {
+    public AbstractAircraft(int locationX, int locationY, int speedX, int speedY, int hp, FireStrategy fireStrategy, int direction) {
         super(locationX, locationY, speedX, speedY);
         this.hp = hp;
         this.maxHp = hp;
+        this.fireStrategy = fireStrategy;
+        this.direction = direction;
     }
 
     public void decreaseHp(int decrease) {
@@ -36,15 +44,30 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
         return hp;
     }
 
+    /**
+     * 设置火力
+     * @param fireStrategy
+     */
+    public void setFireStrategy(FireStrategy fireStrategy) {
+        this.fireStrategy = fireStrategy;
+    }
 
     /**
-     * 飞机射击方法，可射击对象必须实现
+     * 执行火力设置，相当于shoot
+     * @param abstractAircraft
      * @return
-     *  可射击对象需实现，返回子弹
-     *  非可射击对象空实现，返回null
      */
-    public abstract List<AbstractBullet> shoot();
+    public List<AbstractBullet> executeStrategy(AbstractAircraft abstractAircraft) {
+        return fireStrategy.fireSet(abstractAircraft, direction);
+    }
 
+    /**
+     * 获取speedX，便于散射火力设置
+     * @return
+     */
+    public int getSpeedX() {
+        return speedX;
+    }
 }
 
 
