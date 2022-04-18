@@ -11,7 +11,7 @@ public class PlayerDaoImpl implements PlayerDao{
     private List<Player> players = new ArrayList<>();
 
     public PlayerDaoImpl() {
-        File file = new File("C:\\Users\\Strah\\Documents\\AircraftWar-base\\src\\edu\\hitsz\\dao\\data\\PlayerInfo.dat");
+        File file = new File("src/edu/hitsz/dao/data/PlayerInfo.dat");
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             Player[] player = (Player[]) ois.readObject();
             players = new ArrayList<Player>(Arrays.asList(player));

@@ -209,7 +209,7 @@ public class Game extends JPanel {
             System.out.println(p.toString());
         }
         // 序列化后写入文件
-        File file = new File("C:\\Users\\Strah\\Documents\\AircraftWar-base\\src\\edu\\hitsz\\dao\\data\\PlayerInfo.dat");
+        File file = new File("src/edu/hitsz/dao/data/PlayerInfo.dat");
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
             Player[] pl = new Player[players.size()];
             players.toArray(pl);
