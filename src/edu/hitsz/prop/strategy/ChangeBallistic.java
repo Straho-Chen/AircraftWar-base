@@ -9,13 +9,17 @@ public class ChangeBallistic implements PropStrategy{
     @Override
     public void firePorpSet(HeroAircraft heroAircraft) {
         Runnable r = () -> {
-            try {
+            int i = 10;
+            while (i != 0) {
                 heroAircraft.setFireStrategy(new ScatteringBallistic());
-                Thread.sleep(10000);
-                heroAircraft.setFireStrategy(new DirectBallistic());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                try {
+                    Thread.sleep(1000);
+                    i--;
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
+            heroAircraft.setFireStrategy(new DirectBallistic());
         };
         new Thread(r).start();
     }
