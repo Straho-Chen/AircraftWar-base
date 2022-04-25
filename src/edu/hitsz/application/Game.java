@@ -1,6 +1,5 @@
 package edu.hitsz.application;
 
-import edu.hitsz.bullet.EnemyBullet;
 import edu.hitsz.dao.Player;
 import edu.hitsz.dao.PlayerDao;
 import edu.hitsz.dao.PlayerDaoImpl;
@@ -13,17 +12,15 @@ import edu.hitsz.prop.AbstractProp;
 import edu.hitsz.prop.BloodSupplyProp;
 import edu.hitsz.prop.BombSupplyProp;
 import edu.hitsz.prop.FireSupplyProp;
+import edu.hitsz.thread.MusicThread;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.logging.SimpleFormatter;
 
 /**
  * 游戏主面板，游戏启动
@@ -52,13 +49,14 @@ public class Game extends JPanel {
     private AbstractPropFactory propFactory;
     private final List<AbstractProp> propSupply;
     private Player player = new Player();
-    private List<Player> players;
+    public List<Player> players;
     private PlayerDao playerDao = new PlayerDaoImpl();
 
     private int enemyMaxNumber = 5;
 
-    private boolean gameOverFlag = false;
-    private int score = 0;
+    public boolean gameOverFlag = false;
+    public int score = 0;
+    boolean bossExit = false;
     private int bossScoreThreshold = 100;
     private int time = 0;
     /**
@@ -67,14 +65,23 @@ public class Game extends JPanel {
      */
     private int cycleDuration = 600;
     private int cycleTime = 0;
+    private boolean bgmStart;
+    private MusicThread bgmThread;
+    private MusicThread bossBgmThread;
+    private MusicThread bombBgmThread;
+    private MusicThread bulletHitBgmThread;
+    private MusicThread gameOverBgmThread;
+    private MusicThread getSupplyBgmThread;
 
 
-    public Game() {
+    public Game(boolean bgmStart) {
         heroAircraft = HeroAircraft.getSingleton();
         enemyAircrafts = new LinkedList<>();
         heroBullets = new LinkedList<>();
         enemyBullets = new LinkedList<>();
         propSupply = new LinkedList<>();
+
+        this.bgmStart = bgmStart;
 
         /**
          * Scheduled 线程池，用于定时任务调度
@@ -93,6 +100,10 @@ public class Game extends JPanel {
      * 游戏启动入口，执行游戏逻辑
      */
     public void action() {
+        if (bgmStart) {
+            bgmThread = new MusicThread("src/videos/bgm.wav", 2);
+            bgmThread.start();
+        }
 
         // 定时任务：绘制、对象产生、碰撞判定、击毁及结束判定
         Runnable task = () -> {
@@ -114,7 +125,7 @@ public class Game extends JPanel {
                     enemyAircrafts.add(enemyFactory.creatEnemy());
                 }
                 if(isThreshold()) {
-                    boolean bossExit = false;
+                    bossExit = false;
                     for (AbstractAircraft enemy : enemyAircrafts) {
                         if (Boss.class.isAssignableFrom(enemy.getClass())) {
                             bossExit = true;
@@ -124,6 +135,10 @@ public class Game extends JPanel {
                     if (!bossExit) {
                         enemyFactory = new BossFactory();
                         enemyAircrafts.add(enemyFactory.creatEnemy());
+                        if (bgmStart) {
+                            bossBgmThread = new MusicThread("src/videos/bgm_boss.wav", 2);
+                            bossBgmThread.start();
+                        }
                     }
                 }
                 // 飞机射出子弹
@@ -150,11 +165,23 @@ public class Game extends JPanel {
 
             // 游戏结束检查
             if (heroAircraft.getHp() <= 0) {
-                // 游戏结束
-                executorService.shutdown();
-                gameOverFlag = true;
-                scorePrint();
-                System.out.println("Game Over!");
+
+                Object object = Main.object;
+                synchronized (object) {
+                    // 游戏结束
+                    executorService.shutdown();
+                    if (bgmStart) {
+                        gameOverBgmThread = new MusicThread("src/videos/game_over.wav", 1);
+                        gameOverBgmThread.start();
+                        bgmThread.setMusicOverFlag(true);
+                        if (bossExit) {
+                            bossBgmThread.setMusicOverFlag(true);
+                        }
+                    }
+                    gameOverFlag = true;
+                    object.notify();
+                    System.out.println("Game Over!");
+                }
             }
 
         };
@@ -188,34 +215,6 @@ public class Game extends JPanel {
         }
         else {
             return false;
-        }
-    }
-
-    private void scorePrint() {
-        System.out.println("******************************************");
-        System.out.println("                得分排行榜                  ");
-        System.out.println("******************************************");
-        // 创建当前玩家，记录信息
-        player.setName("testUserName");
-        player.setScore(score);
-        Date date = new Date();
-        SimpleDateFormat df = new SimpleDateFormat("MM-dd HH:mm");
-        player.setTime(df.format(date));
-        // 将当前玩家加入玩家池
-        playerDao.doAdd(player);
-        players = playerDao.getAllPlayers();
-        // 排序输出
-        for (Player p : players) {
-            System.out.println(p.toString());
-        }
-        // 序列化后写入文件
-        File file = new File("src/edu/hitsz/dao/data/PlayerInfo.dat");
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-            Player[] pl = new Player[players.size()];
-            players.toArray(pl);
-            oos.writeObject(pl);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -296,6 +295,10 @@ public class Game extends JPanel {
                 if (enemyAircraft.crash(bullet)) {
                     // 敌机撞击到英雄机子弹
                     // 敌机损失一定生命值
+                    if (bgmStart) {
+                        bulletHitBgmThread = new MusicThread("src/videos/bullet_hit.wav", 1);
+                        bulletHitBgmThread.start();
+                    }
                     enemyAircraft.decreaseHp(bullet.getPower());
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
@@ -307,7 +310,7 @@ public class Game extends JPanel {
                                 propFactory = new BloodSupplyFactory();
                                 propSupply.add(propFactory.creatProp(enemyAircraft));
                             }
-                            else if (t == 5) {
+                            else if (t == 5 || t == 2 || t == 3) {
                                 propFactory = new FireSupplyFactory();
                                 propSupply.add(propFactory.creatProp(enemyAircraft));
                             }
@@ -324,6 +327,9 @@ public class Game extends JPanel {
                         }
                         else {
                             score += 30;
+                            if (bgmStart) {
+                                bossBgmThread.setMusicOverFlag(true);
+                            }
                         }
                     }
                 }
@@ -346,6 +352,10 @@ public class Game extends JPanel {
             }
             if (heroAircraft.crash(prop)) {
                 // 英雄机撞击到道具
+                if (bgmStart) {
+                    getSupplyBgmThread = new MusicThread("src/videos/get_supply.wav", 1);
+                    getSupplyBgmThread.start();
+                }
                 if (BloodSupplyProp.class.isAssignableFrom(prop.getClass())) {
                     ((BloodSupplyProp) prop).increaseHp(heroAircraft);
                 }
@@ -354,6 +364,10 @@ public class Game extends JPanel {
                     ((FireSupplyProp) prop).executeStrategy(heroAircraft);
                 }
                 else if (BombSupplyProp.class.isAssignableFrom(prop.getClass())) {
+                    if (bgmStart) {
+                        bombBgmThread = new MusicThread("src/videos/bomb_explosion.wav", 1);
+                        bombBgmThread.start();
+                    }
                     ((BombSupplyProp) prop).boom();
                 }
                 prop.vanish();

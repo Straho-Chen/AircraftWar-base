@@ -11,6 +11,7 @@ public class Player implements Serializable, Comparable<Player> {
     private String name;
     private int score;
     private String time;
+    private String difficulty;
 
     public int getRank() {
         return rank;
@@ -44,8 +45,16 @@ public class Player implements Serializable, Comparable<Player> {
         this.time = time;
     }
 
+    public String getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(String difficulty) {
+        this.difficulty = difficulty;
+    }
+
     public String toString() {
-        return "第"+rank+"名："+name+','+score+','+time;
+        return difficulty+"第"+rank+"名："+name+','+score+','+time;
     }
 
     @Override

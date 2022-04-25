@@ -15,6 +15,7 @@ public class PlayerDaoImpl implements PlayerDao{
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             Player[] player = (Player[]) ois.readObject();
             players = new ArrayList<Player>(Arrays.asList(player));
+            ois.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -24,7 +25,7 @@ public class PlayerDaoImpl implements PlayerDao{
     public void findByName(String name) {
         for (Player player : players) {
             if (name.equals(player.getName())) {
-                System.out.println("第"+player.getRank()+"名："+player.getName()+','+player.getScore()+','+player.getTime());
+                System.out.println(player.getDifficulty()+"第"+player.getRank()+"名："+player.getName()+','+player.getScore()+','+player.getTime());
                 return;
             }
         }
@@ -46,13 +47,30 @@ public class PlayerDaoImpl implements PlayerDao{
     }
 
     @Override
-    public void doDelete(String name) {
-        for (Player player : players) {
-            if (name.equals(player.getName())) {
-                players.remove(player);
-                return;
+    public void doDelete(String name, String time) {
+        for (int i = 0; i < players.size(); i++) {
+            Player player = players.get(i);
+            if (player.getName().equals(name)) {
+                if (player.getTime().equals(time)){
+                    players.remove(player);
+                }
             }
         }
-        System.out.println("Can not find this player!");
+        Collections.sort(players);
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).setRank(i + 1);
+        }
+    }
+
+    public void writeFile() {
+        File file = new File("src/edu/hitsz/dao/data/PlayerInfo.dat");
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+            Player[] pl = new Player[players.size()];
+            players.toArray(pl);
+            oos.writeObject(pl);
+            oos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

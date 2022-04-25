@@ -13,8 +13,11 @@ import edu.hitsz.prop.FireSupplyProp;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,6 +86,15 @@ public class ImageManager {
             return null;
         }
         return get(obj.getClass().getName());
+    }
+
+    public static void setBackgroundImage(String path) {
+        try {
+            BACKGROUND_IMAGE = ImageIO.read(new FileInputStream(path));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
 }

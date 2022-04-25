@@ -29,5 +29,10 @@ public interface PlayerDao {
      * 根据名字删除指定玩家信息
      * @param name
      */
-    public void doDelete(String name);
+    public void doDelete(String name, String time);
+
+    /**
+     * 写文件
+     */
+    public void writeFile();
 }
