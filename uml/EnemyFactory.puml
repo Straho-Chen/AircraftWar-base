@@ -2,22 +2,24 @@
 'https://plantuml.com/class-diagram
 
 abstract class AbstractEnemyFactory {
-    + {abstract} creatEnemy():AbstractAircraft
+    + {abstract} creatEnemy(int hp):AbstractAircraft
 }
 
 class MobFactory {
-    + creatEnemy():AbstractAircraft
+    + creatEnemy(int hp):AbstractAircraft
 }
 
 class EliteFactory {
-    + creatEnemy():AbstractAircraft
+    - randomDirection():int
+    + creatEnemy(int hp):AbstractAircraft
 }
 
 class BossFactory {
-    + creatEnemy():AbstractAircraft
+    - randomDirection():int
+    + creatEnemy(int hp):AbstractAircraft
 }
 
-class Game {
+abstract class GameTemplate {
 }
 
 abstract class AbstractFlyingObject
@@ -49,34 +51,30 @@ abstract class AbstractAircraft
 {
 	# maxHp:int
     # hp:int
+    # fireStrategy:FireStrategy
+    # direction:int
     + AbstractAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
     + decreaseHp(int decrease):void
     + getHp():int
-    + {abstract} shoot():List<AbstractBullet>
+    + setFireStrategy(FireStrategy fireStrategy):void
+    + getFireStrategy():FireStrategy
+    + executeStrategy(AbstractAircraft abstractAircraft):List<AbstractBullet>
+    + getspeedX():int
 }
 
 class MobEnemy {
     + MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
-    + shoot():List<AbstractBullet>
 }
 
 class EliteEnemy {
-    - shootNum:int
-    - power:int
-    - direction:int
     + EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
-    + shoot():List<AbstractBullet>
 }
 
 class Boss {
-    - shootNum:int
-    - power:int
-    - direction:int
     + Boss(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
-    + shoot():List<AbstractBullet>
 }
 
 AbstractFlyingObject <|-- AbstractAircraft
@@ -89,8 +87,8 @@ AbstractEnemyFactory <|-- MobFactory
 AbstractEnemyFactory <|-- EliteFactory
 AbstractEnemyFactory <|-- BossFactory
 
-Game ..> AbstractEnemyFactory
-Game ..> AbstractAircraft
+GameTemplate ..> AbstractEnemyFactory
+GameTemplate ..> AbstractAircraft
 
 MobFactory ..> MobEnemy
 EliteFactory ..> EliteEnemy

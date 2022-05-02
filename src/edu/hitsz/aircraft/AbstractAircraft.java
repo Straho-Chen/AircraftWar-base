@@ -52,6 +52,10 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
         this.fireStrategy = fireStrategy;
     }
 
+    public FireStrategy getFireStrategy() {
+        return fireStrategy;
+    }
+
     /**
      * 执行火力设置，相当于shoot
      * @param abstractAircraft

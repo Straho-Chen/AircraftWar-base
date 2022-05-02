@@ -1,105 +1,91 @@
-package edu.hitsz.application;
+package edu.hitsz.application.Game;
 
-import edu.hitsz.dao.Player;
-import edu.hitsz.dao.PlayerDao;
-import edu.hitsz.dao.PlayerDaoImpl;
-import edu.hitsz.prop.strategy.ChangeBallistic;
 import edu.hitsz.aircraft.*;
-import edu.hitsz.bullet.AbstractBullet;
+import edu.hitsz.aircraft.strategy.DirectBallistic;
+import edu.hitsz.aircraft.strategy.DoubleBullet;
+import edu.hitsz.application.HeroController;
+import edu.hitsz.application.ImageManager;
+import edu.hitsz.application.Main;
+import edu.hitsz.application.MusicThread;
 import edu.hitsz.basic.AbstractFlyingObject;
+import edu.hitsz.bullet.AbstractBullet;
 import edu.hitsz.factory.*;
 import edu.hitsz.prop.AbstractProp;
 import edu.hitsz.prop.BloodSupplyProp;
 import edu.hitsz.prop.BombSupplyProp;
 import edu.hitsz.prop.FireSupplyProp;
-import edu.hitsz.thread.MusicThread;
+import edu.hitsz.prop.strategy.ChangeBallistic;
+import edu.hitsz.prop.strategy.IncreaseShootNum;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.Random;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-/**
- * 游戏主面板，游戏启动
- *
- * @author hitsz
- */
-public class Game extends JPanel {
-
-    private int backGroundTop = 0;
+public abstract class GameTemplate extends JPanel {
+    int backGroundTop = 0;
 
     /**
      * Scheduled 线程池，用于任务调度
      */
-    private final ScheduledExecutorService executorService;
+    final ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1,
+            new BasicThreadFactory.Builder().namingPattern("game-action-%d").daemon(true).build());
 
     /**
      * 时间间隔(ms)，控制刷新频率
      */
-    private int timeInterval = 40;
+    int timeInterval = 40;
 
-    private final HeroAircraft heroAircraft;
-    private AbstractEnemyFactory enemyFactory;
-    private final List<AbstractAircraft> enemyAircrafts;
-    private final List<AbstractBullet> heroBullets;
-    private final List<AbstractBullet> enemyBullets;
-    private AbstractPropFactory propFactory;
-    private final List<AbstractProp> propSupply;
-    private Player player = new Player();
-    public List<Player> players;
-    private PlayerDao playerDao = new PlayerDaoImpl();
+    final HeroAircraft heroAircraft = HeroAircraft.getSingleton();
+    AbstractEnemyFactory enemyFactory;
+    final List<AbstractAircraft> enemyAircrafts = new LinkedList<>();
+    final List<AbstractBullet> heroBullets = new LinkedList<>();
+    final List<AbstractBullet> enemyBullets = new LinkedList<>();
+    AbstractPropFactory propFactory;
+    final List<AbstractProp> propSupply = new LinkedList<>();
+    int enemyMaxNumber = 5;
 
-    private int enemyMaxNumber = 5;
-
-    public boolean gameOverFlag = false;
+    boolean gameOverFlag = false;
     public int score = 0;
     boolean bossExit = false;
-    private int bossScoreThreshold = 100;
-    private int time = 0;
+    int bossNum = 0;
+    int bossScoreThreshold = 500;
+    int bossVanishScore = 0;
+    int time = 0;
     /**
      * 周期（ms)
      * 指示子弹的发射、敌机的产生频率
      */
-    private int cycleDuration = 600;
-    private int cycleTime = 0;
-    private boolean bgmStart;
-    private MusicThread bgmThread;
-    private MusicThread bossBgmThread;
-    private MusicThread bombBgmThread;
-    private MusicThread bulletHitBgmThread;
-    private MusicThread gameOverBgmThread;
-    private MusicThread getSupplyBgmThread;
+    int enemyCycleDuration = 600;
+    int heroCycleDuration = 400;
+    int enemyCycleTime = 0;
+    int heroCycleTime = 0;
+    boolean bgmStart;
+    MusicThread bgmThread;
+    MusicThread bossBgmThread;
+    MusicThread bombBgmThread;
+    MusicThread bulletHitBgmThread;
+    MusicThread gameOverBgmThread;
+    MusicThread getSupplyBgmThread;
 
+    double eliteEnemyProbability = 0.2;
+    double ratio = 1;
 
-    public Game(boolean bgmStart) {
-        heroAircraft = HeroAircraft.getSingleton();
-        enemyAircrafts = new LinkedList<>();
-        heroBullets = new LinkedList<>();
-        enemyBullets = new LinkedList<>();
-        propSupply = new LinkedList<>();
-
+    public GameTemplate(boolean bgmStart) {
         this.bgmStart = bgmStart;
-
-        /**
-         * Scheduled 线程池，用于定时任务调度
-         * 关于alibaba code guide：可命名的 ThreadFactory 一般需要第三方包
-         * apache 第三方库： org.apache.commons.lang3.concurrent.BasicThreadFactory
-         */
-        this.executorService = new ScheduledThreadPoolExecutor(1,
-                new BasicThreadFactory.Builder().namingPattern("game-action-%d").daemon(true).build());
-
-        //启动英雄机鼠标监听
         new HeroController(this, heroAircraft);
-
     }
 
     /**
      * 游戏启动入口，执行游戏逻辑
      */
-    public void action() {
+    public final void action() {
         if (bgmStart) {
             bgmThread = new MusicThread("src/videos/bgm.wav", 2);
             bgmThread.start();
@@ -109,65 +95,42 @@ public class Game extends JPanel {
         Runnable task = () -> {
 
             time += timeInterval;
+            enemyCycleTime += 1;
+            heroCycleTime += 1;
 
             // 周期性执行（控制频率）
-            if (timeCountAndNewCycleJudge()) {
-                System.out.println(time);
-                // 新敌机产生
-                Random r = new Random();
-                int t = r.nextInt(100);
-                if (t%2 == 0 && enemyAircrafts.size() < enemyMaxNumber) {
-                    enemyFactory = new MobFactory();
-                    enemyAircrafts.add(enemyFactory.creatEnemy());
-                }
-                else if (t%3 == 0 && enemyAircrafts.size() < enemyMaxNumber) {
-                    enemyFactory = new EliteFactory();
-                    enemyAircrafts.add(enemyFactory.creatEnemy());
-                }
-                if(isThreshold()) {
-                    bossExit = false;
-                    for (AbstractAircraft enemy : enemyAircrafts) {
-                        if (Boss.class.isAssignableFrom(enemy.getClass())) {
-                            bossExit = true;
-                            break;
-                        }
-                    }
-                    if (!bossExit) {
-                        enemyFactory = new BossFactory();
-                        enemyAircrafts.add(enemyFactory.creatEnemy());
-                        if (bgmStart) {
-                            bossBgmThread = new MusicThread("src/videos/bgm_boss.wav", 2);
-                            bossBgmThread.start();
-                        }
-                    }
-                }
-                // 飞机射出子弹
-                shootAction();
+            if (enemyTimeCountAndNewCycleJudge()) {
+                this.createEnemy();
+                enemyShootAction();
+            }
+            if (heroTimeCountAndNewCycleJudge()) {
+                heroShootAction();
             }
 
             // 子弹移动
-            bulletsMoveAction();
+            this.bulletsMoveAction();
 
             // 飞机移动
-            aircraftsMoveAction();
+            this.aircraftsMoveAction();
 
             //道具移动
-            propsupplyMoveAction();
+            this.propSupplyMoveAction();
 
             // 撞击检测
-            crashCheckAction();
+            this.crashCheckAction();
 
             // 后处理
-            postProcessAction();
+            this.postProcessAction();
+
+            //增加难度
+            this.difficultyIncrease();
 
             //每个时刻重绘界面
-            repaint();
+            this.repaint();
 
             // 游戏结束检查
             if (heroAircraft.getHp() <= 0) {
-
-                Object object = Main.object;
-                synchronized (object) {
+                synchronized (Main.object) {
                     // 游戏结束
                     executorService.shutdown();
                     if (bgmStart) {
@@ -179,11 +142,10 @@ public class Game extends JPanel {
                         }
                     }
                     gameOverFlag = true;
-                    object.notify();
+                    Main.object.notify();
                     System.out.println("Game Over!");
                 }
             }
-
         };
 
         /**
@@ -198,19 +160,37 @@ public class Game extends JPanel {
     //      Action 各部分
     //***********************
 
-    private boolean timeCountAndNewCycleJudge() {
-        cycleTime += timeInterval;
-        if (cycleTime >= cycleDuration && cycleTime - timeInterval < cycleTime) {
+    public final boolean enemyTimeCountAndNewCycleJudge() {
+        enemyCycleTime += timeInterval;
+        if (enemyCycleTime >= enemyCycleDuration && enemyCycleTime - timeInterval < enemyCycleTime) {
             // 跨越到新的周期
-            cycleTime %= cycleDuration;
+            enemyCycleTime %= enemyCycleDuration;
             return true;
         } else {
             return false;
         }
     }
 
-    private boolean isThreshold() {
-        if (score != 0 && score % bossScoreThreshold == 0) {
+    public final boolean heroTimeCountAndNewCycleJudge() {
+        heroCycleTime += timeInterval;
+        if (heroCycleTime >= heroCycleDuration && heroCycleTime - timeInterval < heroCycleTime) {
+            // 跨越到新的周期
+            heroCycleTime %= heroCycleDuration;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 控制敌机产生，传入概率
+     * @param probability
+     * @return
+     */
+    public final boolean isCreate(double probability) {
+        Random r = new Random();
+        double t = r.nextDouble();
+        if (t <= probability) {
             return true;
         }
         else {
@@ -218,8 +198,22 @@ public class Game extends JPanel {
         }
     }
 
-    private void shootAction() {
-        // TODO 敌机射击
+    public abstract void createEnemy();
+    public abstract void difficultyIncrease();
+    public final boolean isThreshold() {
+        if (score > bossScoreThreshold * (bossNum+1) + bossVanishScore) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public final void heroShootAction() {
+        heroBullets.addAll(heroAircraft.executeStrategy(heroAircraft));
+    }
+
+    public final void enemyShootAction() {
         for (AbstractAircraft enemy : enemyAircrafts) {
             if (EliteEnemy.class.isAssignableFrom(enemy.getClass())) {
                 enemyBullets.addAll(enemy.executeStrategy(enemy));
@@ -228,11 +222,9 @@ public class Game extends JPanel {
                 enemyBullets.addAll(enemy.executeStrategy(enemy));
             }
         }
-//         英雄射击
-        heroBullets.addAll(heroAircraft.executeStrategy(heroAircraft));
     }
 
-    private void bulletsMoveAction() {
+    public final void bulletsMoveAction() {
         for (AbstractBullet bullet : heroBullets) {
             bullet.forward();
         }
@@ -241,13 +233,13 @@ public class Game extends JPanel {
         }
     }
 
-    private void aircraftsMoveAction() {
+    public final void aircraftsMoveAction() {
         for (AbstractAircraft enemyAircraft : enemyAircrafts) {
             enemyAircraft.forward();
         }
     }
 
-    private void propsupplyMoveAction() {
+    public final void propSupplyMoveAction() {
         for (AbstractProp propsupply: propSupply) {
             propsupply.forward();
         }
@@ -260,7 +252,7 @@ public class Game extends JPanel {
      * 2. 英雄攻击/撞击敌机
      * 3. 英雄获得补给
      */
-    private void crashCheckAction() {
+    public final void crashCheckAction() {
         // TODO 敌机子弹攻击英雄
         for (AbstractBullet bullet : enemyBullets) {
             if (bullet.notValid()) {
@@ -305,18 +297,19 @@ public class Game extends JPanel {
                         // TODO 获得分数，产生道具补给
                         if (!MobEnemy.class.isAssignableFrom(enemyAircraft.getClass())) {
                             Random r = new Random();
-                            int t = r.nextInt(7);
-                            if (t == 4) {
+                            int t = r.nextInt(10);
+                            if (t==1 || t == 9) {
                                 propFactory = new BloodSupplyFactory();
                                 propSupply.add(propFactory.creatProp(enemyAircraft));
                             }
-                            else if (t == 5 || t == 2 || t == 3) {
+                            else if (t == 3 || t == 7) {
                                 propFactory = new FireSupplyFactory();
                                 propSupply.add(propFactory.creatProp(enemyAircraft));
                             }
-                            else if (t == 6) {
+                            else if (t == 5) {
                                 propFactory = new BombSupplyFactory();
-                                propSupply.add(propFactory.creatProp(enemyAircraft));
+                                BombSupplyProp bombSupplyProp = (BombSupplyProp) propFactory.creatProp(enemyAircraft);
+                                propSupply.add(bombSupplyProp);
                             }
                         }
                         if (MobEnemy.class.isAssignableFrom(enemyAircraft.getClass())) {
@@ -327,6 +320,8 @@ public class Game extends JPanel {
                         }
                         else {
                             score += 30;
+                            bossNum += 1;
+                            bossVanishScore = score;
                             if (bgmStart) {
                                 bossBgmThread.setMusicOverFlag(true);
                             }
@@ -360,15 +355,51 @@ public class Game extends JPanel {
                     ((BloodSupplyProp) prop).increaseHp(heroAircraft);
                 }
                 else if (FireSupplyProp.class.isAssignableFrom(prop.getClass())) {
-                    ((FireSupplyProp) prop).setPropStrategy(new ChangeBallistic());
-                    ((FireSupplyProp) prop).executeStrategy(heroAircraft);
+                    /**
+                     * 如果捡到火力道具时英雄机处于散射状态，那么生成的道具策略为散射，起到延长作用
+                     * 如果捡到火力道具时处于单子弹直射状态，那么生成的道具策略为增加子弹
+                     * 如果捡到火力道具时处于双子弹直射状态，那么生成的道具策略为散射
+                     */
+                    if (DirectBallistic.class.isAssignableFrom(heroAircraft.getFireStrategy().getClass())) {
+                        ((FireSupplyProp) prop).setPropStrategy(new IncreaseShootNum());
+                        ((FireSupplyProp) prop).executeStrategy(heroAircraft);
+                    }
+                    else if (DoubleBullet.class.isAssignableFrom(heroAircraft.getFireStrategy().getClass())) {
+                        ((FireSupplyProp) prop).setPropStrategy(new ChangeBallistic());
+                        ((FireSupplyProp) prop).executeStrategy(heroAircraft);
+                    }
+                    else {
+                        ((FireSupplyProp) prop).setPropStrategy(new ChangeBallistic());
+                        ((FireSupplyProp) prop).executeStrategy(heroAircraft);
+                    }
                 }
                 else if (BombSupplyProp.class.isAssignableFrom(prop.getClass())) {
                     if (bgmStart) {
                         bombBgmThread = new MusicThread("src/videos/bomb_explosion.wav", 1);
                         bombBgmThread.start();
                     }
-                    ((BombSupplyProp) prop).boom();
+                    for (AbstractAircraft enemy : enemyAircrafts) {
+                        if (!enemy.notValid()) {
+                            ((BombSupplyProp) prop).addEnemy(enemy);
+                            if (EliteEnemy.class.isAssignableFrom(enemy.getClass())) {
+                                score += 20;
+                            }
+                            else if (MobEnemy.class.isAssignableFrom(enemy.getClass())) {
+                                score += 10;
+                            }
+                            else {
+                                if (enemy.getHp() == 100) {
+                                    score += 30;
+                                }
+                            }
+                        }
+                    }
+                    for (AbstractBullet bullet : enemyBullets) {
+                        if (!bullet.notValid()) {
+                            ((BombSupplyProp) prop).addEnemy(bullet);
+                        }
+                    }
+                    ((BombSupplyProp) prop).executeBombSupply();
                 }
                 prop.vanish();
                 if (heroAircraft.notValid()) {
@@ -387,7 +418,7 @@ public class Game extends JPanel {
      * <p>
      * 无效的原因可能是撞击或者飞出边界
      */
-    private void postProcessAction() {
+    public final void postProcessAction() {
         enemyBullets.removeIf(AbstractFlyingObject::notValid);
         heroBullets.removeIf(AbstractFlyingObject::notValid);
         enemyAircrafts.removeIf(AbstractFlyingObject::notValid);
@@ -406,7 +437,7 @@ public class Game extends JPanel {
      * @param  g
      */
     @Override
-    public void paint(Graphics g) {
+    public final void paint(Graphics g) {
         super.paint(g);
 
         // 绘制背景,图片滚动
@@ -433,7 +464,7 @@ public class Game extends JPanel {
 
     }
 
-    private void paintImageWithPositionRevised(Graphics g, List<? extends AbstractFlyingObject> objects) {
+    public final void paintImageWithPositionRevised(Graphics g, List<? extends AbstractFlyingObject> objects) {
         if (objects.size() == 0) {
             return;
         }
@@ -446,7 +477,7 @@ public class Game extends JPanel {
         }
     }
 
-    private void paintScoreAndLife(Graphics g) {
+    public final void paintScoreAndLife(Graphics g) {
         int x = 10;
         int y = 25;
         g.setColor(new Color(16711680));
@@ -455,6 +486,5 @@ public class Game extends JPanel {
         y = y + 20;
         g.drawString("LIFE:" + this.heroAircraft.getHp(), x, y);
     }
-
 
 }

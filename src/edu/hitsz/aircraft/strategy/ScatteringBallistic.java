@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class ScatteringBallistic implements FireStrategy {
     private int shootNum = 3;
-    private int power = 10;
+    private int power = 100;
     @Override
     public List<AbstractBullet> fireSet(AbstractAircraft abstractAircraft, int direction) {
         List<AbstractBullet> bullets = new LinkedList<>();

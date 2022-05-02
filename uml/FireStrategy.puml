@@ -1,7 +1,7 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-class Game {
+class GameTemplate {
 }
 
 interface FireStrategy {
@@ -12,6 +12,7 @@ Abstract class AbstractAircraft {
     # fireStrategy:FireStrategy
     # direction:int
     + setFireStrategy(FireStrategy fireStrategy):void
+    + getFireStrategy():FireStrategy
     + executeStrategy(AbstractAircraft abstractAircraft):List<AbstractBullet>
 }
 
@@ -27,7 +28,7 @@ class ScatteringBallistic {
     + fireSet(AbstractAircraft abstractAircraft, int direction):List<AbstractBullet>
 }
 
-Game ..> AbstractAircraft
+GameTemplate ..> AbstractAircraft
 
 AbstractAircraft o--> FireStrategy
 

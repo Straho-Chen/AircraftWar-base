@@ -1,7 +1,6 @@
 package edu.hitsz.dao;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -19,17 +18,6 @@ public class PlayerDaoImpl implements PlayerDao{
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void findByName(String name) {
-        for (Player player : players) {
-            if (name.equals(player.getName())) {
-                System.out.println(player.getDifficulty()+"第"+player.getRank()+"名："+player.getName()+','+player.getScore()+','+player.getTime());
-                return;
-            }
-        }
-        System.out.println("Can not find this player!");
     }
 
     @Override

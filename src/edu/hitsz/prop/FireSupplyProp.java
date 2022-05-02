@@ -15,5 +15,6 @@ public class FireSupplyProp extends AbstractProp {
 
     public void executeStrategy(HeroAircraft heroAircraft) {
         propStrategy.firePorpSet(heroAircraft);
+        System.out.println("FireSupply active!");
     }
 }

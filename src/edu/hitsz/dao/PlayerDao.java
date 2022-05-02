@@ -8,12 +8,6 @@ import java.util.List;
 public interface PlayerDao {
 
     /**
-     * 根据名字查询玩家信息
-     * @param name
-     */
-    public void findByName(String name);
-
-    /**
      * 获取所有玩家信息
      * @return
      */

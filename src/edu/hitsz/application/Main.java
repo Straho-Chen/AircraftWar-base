@@ -1,5 +1,9 @@
 package edu.hitsz.application;
 
+import edu.hitsz.application.Game.EasyGame;
+import edu.hitsz.application.Game.GameTemplate;
+import edu.hitsz.application.Game.HardGame;
+import edu.hitsz.application.Game.MediumGame;
 import edu.hitsz.swing.DifficultySelect;
 import edu.hitsz.swing.RankList;
 
@@ -36,7 +40,16 @@ public class Main {
                 frame.setVisible(true);
                 object.wait();
                 frame.remove(difficultySelect.mainPanel);
-                Game game = new Game(difficultySelect.bgmStart);
+                GameTemplate game;
+                if (difficultySelect.returnDifficulty().equals("Easy")) {
+                    game = new EasyGame(difficultySelect.bgmStart);
+                }
+                else if (difficultySelect.returnDifficulty().equals("Medium")) {
+                    game = new MediumGame(difficultySelect.bgmStart);
+                }
+                else {
+                    game = new HardGame(difficultySelect.bgmStart);
+                }
                 frame.add(game);
                 frame.setVisible(true);
                 game.action();

@@ -30,13 +30,17 @@ abstract class AbstractAircraft
 {
 	# maxHp:int
     # hp:int
+    # fireStrategy:FireStrategy
+    # direction:int
     + AbstractAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
     + decreaseHp(int decrease):void
     + getHp():int
-    + {abstract} shoot():List<AbstractBullet>
+    + setFireStrategy(FireStrategy fireStrategy):void
+    + executeStrategy(AbstractAircraft abstractAircraft):List<AbstractBullet>
+    + getSpeedX():int
  }
 
-class AbstractBullet
+abstract class AbstractBullet
 {
     - power:int
     + AbstractBullet(int locationX, int locationY, int speedX, int speedY, int power)
@@ -52,12 +56,8 @@ abstract class AbstractProp
 
 class HeroAircraft {
     - heroAircraft:HeroAircraft
-    - shootNum:int
-    - power:int
-    - direction:int
     - HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
-    + shoot():List<AbstractBullet>
     + increaseHp(int increase):void
     + getSingleton():HeroAircraft
 }
@@ -65,25 +65,16 @@ class HeroAircraft {
 class MobEnemy {
     + MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
-    + shoot():List<AbstractBullet>
 }
 
 class EliteEnemy {
-    - shootNum:int
-    - power:int
-    - direction:int
     + EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
-    + shoot():List<AbstractBullet>
 }
 
 class Boss {
-    - shootNum:int
-    - power:int
-    - direction:int
     + Boss(int locationX, int locationY, int speedX, int speedY, int hp)
     + forward():void
-    + shoot():List<AbstractBullet>
 }
 
 class HeroBullet {
@@ -103,13 +94,18 @@ class BloodSupplyProp {
 }
 
 class FireSupplyProp {
+    - propStrategy:PropStrategy
     + FireSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + increaseFire():void
+    + setPropStrategy(PropStrategy propStrategy):void
+    + executeStrategy(HeroAircraft heroAircraft):void
 }
 
 class BombSupplyProp {
+    - objects:List<AbstractFlyingObject>
     + BombSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + boom():void
+    + addEnemy(AbstractFlyingObject object):void
+    + notifyAllEnemy():void
+    + executeBombSupply():void
 }
 
 AbstractFlyingObject <|-- AbstractAircraft

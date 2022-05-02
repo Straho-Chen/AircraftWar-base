@@ -4,6 +4,7 @@ import edu.hitsz.aircraft.strategy.DirectBallistic;
 import edu.hitsz.aircraft.strategy.FireStrategy;
 import edu.hitsz.application.ImageManager;
 import edu.hitsz.application.Main;
+import edu.hitsz.prop.strategy.PropStrategy;
 
 /**
  * 英雄飞机，游戏玩家操控
@@ -38,6 +39,7 @@ public class HeroAircraft extends AbstractAircraft {
         }
     }
 
+
     public static HeroAircraft getSingleton() {
         if (heroAircraft == null) {
             synchronized (HeroAircraft.class) {
@@ -45,7 +47,7 @@ public class HeroAircraft extends AbstractAircraft {
                     heroAircraft = new HeroAircraft(
                             Main.WINDOW_WIDTH / 2,
                             Main.WINDOW_HEIGHT - ImageManager.HERO_IMAGE.getHeight() ,
-                            0, 0, 100, new DirectBallistic(), -1);
+                            0, 0, 10000, new DirectBallistic(), -1);
                 }
             }
         }

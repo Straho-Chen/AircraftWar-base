@@ -1,22 +1,22 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-class Game {}
+class RankList{}
 
 interface PlayerDao {
-    + findByName(String name):void
     + getAllPlayers():List<Player>
     + doAdd(Player player):void
-    + doDelete(String name):void
+    + doDelete(String name, String time):void
+    + writeFile():void
 }
 
 class PlayerDaoImpl {
     - players:List<Player>
     + PlayerDaoImpl()
-    + findByName(String name):void
     + getAllPlayers():List<Player>
     + doAdd(Player player):void
-    + doDelete(Player player):void
+    + doDelete(String name, String time):void
+    + writeFile():void
 }
 
 class Player {
@@ -24,7 +24,7 @@ class Player {
     - name:String
     - score:int
     - time:String
-    + Player(int rank, String name, int score, String time)
+    - difficulty:String
     + getRank():int
     + setRank(int rank):void
     + getName():String
@@ -33,11 +33,13 @@ class Player {
     + setScore(int score):void
     + getTime():String
     + setTime(String time):void
+    + getDifficulty():String
+    + setDifficulty(String difficulty):void
     + toString():String
     + compareTo():int
 }
 
-Game ..> PlayerDao
+RankList ..> PlayerDao
 
 PlayerDao <|.. PlayerDaoImpl
 

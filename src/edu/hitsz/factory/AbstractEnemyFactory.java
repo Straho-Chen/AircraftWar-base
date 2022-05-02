@@ -9,6 +9,6 @@ public abstract class AbstractEnemyFactory {
      * @return
      * 返回抽象类AbstractAircraft
      */
-    public abstract AbstractAircraft creatEnemy();
+    public abstract AbstractAircraft creatEnemy(int hp);
 
 }

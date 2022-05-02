@@ -1,0 +1,44 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+abstract class GameTemplate {}
+
+class BombSupplyProp {
+    - objects:List<AbstractFlyingObject>
+    + BombSupplyProp(int locationX, int locationY, int speedX, int speedY)
+    + addEnemy(AbstractFlyingObject object):void
+    + notifyAllEnemy():void
+    + executeBombSupply():void
+}
+
+abstract class AbstractFlyingObject {
+    + vanish():void
+}
+
+class MobEnemy {
+    + vanish():void
+}
+
+class EliteEnemy {
+    + vanish():void
+}
+
+class Boss {
+    + decreaseHP(int decrease):void
+    + vanish():void
+}
+
+class EnemyBullet {
+    + vanish():void
+}
+
+GameTemplate ..> BombSupplyProp
+
+BombSupplyProp o--> AbstractFlyingObject
+
+AbstractFlyingObject <|-- MobEnemy
+AbstractFlyingObject <|-- EliteEnemy
+AbstractFlyingObject <|-- Boss
+AbstractFlyingObject <|-- EnemyBullet
+
+@enduml

@@ -2,7 +2,6 @@ package edu.hitsz.swing;
 
 import edu.hitsz.application.ImageManager;
 import edu.hitsz.application.Main;
-import edu.hitsz.thread.MusicThread;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

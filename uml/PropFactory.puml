@@ -19,7 +19,7 @@ class BombSupplyFactory {
     + creatProp(AbstractAircraft enemyAircraft):AbstractProp
 }
 
-class Game {
+abstract class GameTemplate {
 }
 
 abstract class AbstractFlyingObject
@@ -60,13 +60,18 @@ class BloodSupplyProp {
 }
 
 class FireSupplyProp {
+    - propStrategy:PropStrategy
     + FireSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + increaseFire():void
+    + setPropStrategy(PropStrategy propStrategy):void
+    + executeStrategy(HeroAircraft heroAircraft):void
 }
 
 class BombSupplyProp {
+    - objects:List<AbstractFlyingObject flyingObject>
     + BombSupplyProp(int locationX, int locationY, int speedX, int speedY)
-    + boom():void
+    + addEnemy(AbstractFlyingObject object):void
+    + notifyAllEnemy():void
+    + executeBombSupply():void
 }
 
 AbstractFlyingObject <|-- AbstractProp
@@ -79,8 +84,8 @@ AbstractPropFactory <|-- BloodSupplyFactory
 AbstractPropFactory <|-- FireSupplyFactory
 AbstractPropFactory <|-- BombSupplyFactory
 
-Game ..> AbstractPropFactory
-Game ..> AbstractProp
+GameTemplate ..> AbstractPropFactory
+GameTemplate ..> AbstractProp
 
 BloodSupplyFactory ..> BloodSupplyProp
 FireSupplyFactory ..> FireSupplyProp

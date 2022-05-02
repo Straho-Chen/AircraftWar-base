@@ -1,4 +1,4 @@
-package edu.hitsz.thread;
+package edu.hitsz.application;
 
 import edu.hitsz.application.Main;
 
